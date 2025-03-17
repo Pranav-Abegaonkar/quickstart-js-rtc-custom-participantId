@@ -96,6 +96,7 @@ function initializeMeeting() {
     document.getElementById("grid-screen").style.display = "block";
     document.getElementById("meetingIdHeading").textContent = `Meeting Id: ${meetingId}`;
     createLocalParticipant();
+    logParticipants();
   });
 
   // Event: Meeting Left
@@ -105,9 +106,22 @@ function initializeMeeting() {
     meeting = null;
   });
 
+  function logParticipants() {
+    const participantIds = Array.from(meeting.participants.keys());
+    participantIds.push(meeting.localParticipant.id); // Add local participant ID
+    console.log("Participant IDs:", participantIds);
+  }
+
+  meeting.on("participant-joined", (data)=> {
+    console.log("onParticipant data", data);
+    logParticipants();
+  })
+
+  const Constants = VideoSDK.Constants;
   // Event: Error Handling
-  meeting.on("error", (error) => {
-    console.error("[ERROR] Meeting Error:", error);
+  meeting.on("error", (data) => {
+    const {code , message} = data;
+    console.error("[ERROR] Meeting Error:", code);
 
     if (error.code === 4005) {
       console.log("[ERROR 4005] Duplicate participant ID detected. Leaving meeting...");
@@ -219,14 +233,15 @@ function setTrack(stream, audioElement, participant, isLocal) {
 
 // Leave Meeting Button Event Listener
 leaveButton.addEventListener("click", async () => {
-  console.log("Leave button clicked. Leaving meeting...");
-  meeting?.leave().then(() => {
+  try {
+    meeting.leave()
     console.log("Successfully left meeting.");
     resetUI();
     meeting = null;
-  }).catch((err) => {
+  } catch (err) {
     console.error("Failed to leave meeting:", err);
-  });
+  }
+  console.log("Leave button clicked. Leaving meeting...");
 });
 toggleMicButton.addEventListener("click", async () => {
   if (isMicOn) {
