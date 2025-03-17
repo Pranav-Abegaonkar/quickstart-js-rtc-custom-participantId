@@ -228,3 +228,31 @@ leaveButton.addEventListener("click", async () => {
     console.error("Failed to leave meeting:", err);
   });
 });
+toggleMicButton.addEventListener("click", async () => {
+  if (isMicOn) {
+    // Disable Mic in Meeting
+    meeting?.muteMic();
+  } else {
+    // Enable Mic in Meeting
+    meeting?.unmuteMic();
+  }
+  isMicOn = !isMicOn;
+});
+
+// Toggle Web Cam Button Event Listener
+toggleWebCamButton.addEventListener("click", async () => {
+  if (isWebCamOn) {
+    // Disable Webcam in Meeting
+    meeting?.disableWebcam();
+
+    let vElement = document.getElementById(`f-${meeting.localParticipant.id}`);
+    vElement.style.display = "none";
+  } else {
+    // Enable Webcam in Meeting
+    meeting?.enableWebcam();
+
+    let vElement = document.getElementById(`f-${meeting.localParticipant.id}`);
+    vElement.style.display = "inline";
+  }
+  isWebCamOn = !isWebCamOn;
+});
