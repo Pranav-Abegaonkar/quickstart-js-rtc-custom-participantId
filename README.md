@@ -21,8 +21,7 @@ At Video SDK, we’re building tools to help companies create world-class collab
 1. Clone the repository to your local environment.
 
    ```js
-   git clone https://github.com/videosdk-live/quickstart.git
-   cd quickstart/js-rtc
+   git clone https://github.com/Pranav-Abegaonkar/quickstart-js-rtc-custom-participantId.git
    ```
 
 2. Create a new file config.js and Copy the config.example.js file's data to config.js file
