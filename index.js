@@ -103,50 +103,106 @@ function initializeMeeting() {
     logParticipants();
   })
 
-  meeting.on("entry-requested", (data) => {
-    const { participantId, name, allow, deny } = data;
 
-    console.log(`${name} requested to join the meeting.`);
+//creating html to show pop up
+//   meeting.on("entry-requested", (data) => {
+//     const { participantId, name, allow, deny } = data;
 
-    // Function to Show Popup Message
-    function showPopup(allowFn, denyFn) {
-        const popup = document.createElement("div");
-        popup.className = "popup";
+//     console.log(`${name} requested to join the meeting.`);
 
-        // Create buttons with unique IDs
-        popup.innerHTML = `
-            <button id="allow-btn">Allow</button> 
-            <span>  </span>
-            <button id="deny-btn">Deny</button>
-        `;
+//     // Function to Show Popup Message
+//     function showPopup(allowFn, denyFn) {
+//         const popup = document.createElement("div");
+//         popup.className = "popup";
 
-        document.body.appendChild(popup);
+//         // Create buttons with unique IDs
+//         popup.innerHTML = `
+//             <button id="allow-btn">Allow</button> 
+//             <span>  </span>
+//             <button id="deny-btn">Deny</button>
+//         `;
 
-        // Function to remove popup after button click
-        function removePopupAndExecute(actionFn) {
-            popup.remove(); // Remove popup from DOM
-            actionFn(); // Execute allow or deny function
-        }
+//         document.body.appendChild(popup);
 
-        // Attach event listeners
-        document.getElementById("allow-btn").addEventListener("click", () => removePopupAndExecute(allowFn));
-        document.getElementById("deny-btn").addEventListener("click", () => removePopupAndExecute(denyFn));
+//         // Function to remove popup after button click
+//         function removePopupAndExecute(actionFn) {
+//             popup.remove(); // Remove popup from DOM
+//             actionFn(); // Execute allow or deny function
+//         }
 
-        // Auto-remove the popup after 10 seconds if no action is taken
-        setTimeout(() => {
-            if (document.body.contains(popup)) {
-                popup.remove();
-            }
-        }, 10000);
-    }
+//         // Attach event listeners
+//         document.getElementById("allow-btn").addEventListener("click", () => removePopupAndExecute(allowFn));
+//         document.getElementById("deny-btn").addEventListener("click", () => removePopupAndExecute(denyFn));
 
-    // Call showPopup and pass the allow and deny functions
-    showPopup(allow, deny);
+//         // Auto-remove the popup after 10 seconds if no action is taken
+//         setTimeout(() => {
+//             if (document.body.contains(popup)) {
+//                 popup.remove();
+//             }
+//         }, 10000);
+//     }
+
+//     // Call showPopup and pass the allow and deny functions
+//     showPopup(allow, deny);
+// });
+
+
+// alert like pop up
+
+meeting.on("entry-requested", (data) => {
+  const { participantId, name, allow, deny } = data;
+
+  console.log(`${name} requested to join the meeting.`);
+
+  // Function to Show Modal-Style Popup
+  function showPopup(allowFn, denyFn, participantName) {
+      // Create a semi-transparent overlay
+      const overlay = document.createElement("div");
+      overlay.className = "popup-overlay";
+
+      // Create the modal container
+      const popup = document.createElement("div");
+      popup.className = "popup-modal";
+
+      // Add the content inside the modal
+      popup.innerHTML = `
+          <p><strong>${participantName}</strong> is requesting to join the meeting.</p>
+          <div class="popup-buttons">
+              <button id="allow-btn">Allow</button>
+              <button id="deny-btn">Deny</button>
+          </div>
+      `;
+
+      // Append elements to the body
+      overlay.appendChild(popup);
+      document.body.appendChild(overlay);
+
+      // Function to remove popup and overlay
+      function removePopupAndExecute(actionFn) {
+          overlay.remove(); // Remove overlay and popup
+          actionFn(); // Execute allow or deny function
+      }
+
+      // Attach event listeners for buttons
+      document.getElementById("allow-btn").addEventListener("click", () => removePopupAndExecute(allowFn));
+      document.getElementById("deny-btn").addEventListener("click", () => removePopupAndExecute(denyFn));
+
+      // Auto-remove after 10 seconds if no action is taken
+      setTimeout(() => {
+          if (document.body.contains(overlay)) {
+              overlay.remove();
+          }
+      }, 10000);
+  }
+
+  // Call showPopup and pass the allow and deny functions along with the participant's name
+  showPopup(allow, deny, name);
 });
 
 
 
   // Event: Error Handling
+
   // meeting.on("error", (data) => {
   //   const {code , message} = data;
   //   console.error("[ERROR] Meeting Error:", code);
