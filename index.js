@@ -21,20 +21,6 @@ function resetUI() {
   textDiv.textContent = "";
   videoContainer.innerHTML = "";
 }
-
-// Function to Show Popup Message
-function showPopup(message) {
-  const popup = document.createElement("div");
-  popup.className = "popup";
-  popup.innerHTML = `<p>${message}</p>`;
-
-  document.body.appendChild(popup);
-
-  setTimeout(() => {
-    popup.remove();
-  }, 3000);
-}
-
 // Join Meeting Button Event Listener
 joinButton.addEventListener("click", async () => {
   document.getElementById("join-screen").style.display = "none";
@@ -117,26 +103,65 @@ function initializeMeeting() {
     logParticipants();
   })
 
-  const Constants = VideoSDK.Constants;
-  // Event: Error Handling
-  meeting.on("error", (data) => {
-    const {code , message} = data;
-    console.error("[ERROR] Meeting Error:", code);
+  meeting.on("entry-requested", (data) => {
+    const { participantId, name, allow, deny } = data;
 
-    if (error.code === 4005) {
-      console.log("[ERROR 4005] Duplicate participant ID detected. Leaving meeting...");
+    console.log(`${name} requested to join the meeting.`);
 
-      showPopup("You are trying to join the meeting somewhere else, so leaving from here.");
+    // Function to Show Popup Message
+    function showPopup(allowFn, denyFn) {
+        const popup = document.createElement("div");
+        popup.className = "popup";
 
-      meeting.leave().then(() => {
-        console.log("[ERROR 4005] Successfully left meeting. Resetting UI...");
-        resetUI();
-        meeting = null;
-      }).catch((err) => {
-        console.error("[ERROR 4005] Failed to leave meeting:", err);
-      });
+        // Create buttons with unique IDs
+        popup.innerHTML = `
+            <button id="allow-btn">Allow</button> 
+            <span>  </span>
+            <button id="deny-btn">Deny</button>
+        `;
+
+        document.body.appendChild(popup);
+
+        // Function to remove popup after button click
+        function removePopupAndExecute(actionFn) {
+            popup.remove(); // Remove popup from DOM
+            actionFn(); // Execute allow or deny function
+        }
+
+        // Attach event listeners
+        document.getElementById("allow-btn").addEventListener("click", () => removePopupAndExecute(allowFn));
+        document.getElementById("deny-btn").addEventListener("click", () => removePopupAndExecute(denyFn));
+
+        // Auto-remove the popup after 10 seconds if no action is taken
+        setTimeout(() => {
+            if (document.body.contains(popup)) {
+                popup.remove();
+            }
+        }, 10000);
     }
-  });
+
+    // Call showPopup and pass the allow and deny functions
+    showPopup(allow, deny);
+});
+
+
+
+  // Event: Error Handling
+  // meeting.on("error", (data) => {
+  //   const {code , message} = data;
+  //   console.error("[ERROR] Meeting Error:", code);
+
+  //   if (error.code === 4005) {
+  //     console.log("[ERROR 4005] Duplicate participant ID detected. Leaving meeting...");
+  //     meeting.leave().then(() => {
+  //       console.log("[ERROR 4005] Successfully left meeting. Resetting UI...");
+  //       resetUI();
+  //       meeting = null;
+  //     }).catch((err) => {
+  //       console.error("[ERROR 4005] Failed to leave meeting:", err);
+  //     });
+  //   }
+  // });
 
   // Event: Participant Joined
   meeting.on("participant-joined", (participant) => {
